@@ -8,8 +8,10 @@ const flash=require('connect-flash');
 require('dotenv').config();
 
 const pageRouter = require('./routes/page');
+const {sequelize} = require('./models'); // ./modles는 ./models/index.js와 같다.
 
 const app=express();
+sequelize.sync();
 
 app.set('views', path.join(__dirname, 'views')); //path.join의 'views'는 views 디렉토리 의미하는 것 같다.
 app.set('view engine', 'pug');

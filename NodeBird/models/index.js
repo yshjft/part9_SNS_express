@@ -24,7 +24,7 @@ db.Post.belongsToMany(db.Hashtag,{through : 'PostHahstag'});
 db.Hashtag.belongsToMany(db.Post,{through : 'PostHahstag'});
 
 //같은 테이블끼리도 N:M 관계를 가질 수 있다.
-//시발 이쪽을 모르겠다
+//아직 잘 모르는 부분 데이터 넣으면서 확인해야할 듯 하다.
 db.User.belongsToMany(db.User, {
   foreignKey:'followingId',
   as:'Followers', // as옵션 시퀄라이즈가 JOIN 작업 시 사용하는 이름
