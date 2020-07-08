@@ -11,9 +11,9 @@ const sequelize=new Sequelize(
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
-db.User=require('./user')(sequelize, Sequelize);
-db.Post=require('./post')(sequelize, Sequelize);
-db.Hashtag=require('./hashtag')(sequelize, Sequelize);
+db.User=require('./user')(sequelize, Sequelize); //db객체를 require하여 User에 접근 가능하도록 한다.
+db.Post=require('./post')(sequelize, Sequelize); //db객체를 require하여 Post에 접근 가능하도록 한다.
+db.Hashtag=require('./hashtag')(sequelize, Sequelize);//db객체를 require하여 Hashtag에 접근 가능하도록 한다.
 
 db.User.hasMany(db.Post);
 db.Post.belongsTo(db.User);

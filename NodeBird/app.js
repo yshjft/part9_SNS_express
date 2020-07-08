@@ -4,14 +4,17 @@ const cookieParser=require('cookie-parser');
 const path=require('path');
 const session=require('express-session');
 const flash=require('connect-flash');
-
+const passport=require('passport');
 require('dotenv').config();
 
 const pageRouter = require('./routes/page');
+const authRouter = require('./routes/auth');
 const {sequelize} = require('./models'); // ./modles는 ./models/index.js와 같다.
+const passportConfig= require('./passport'); // ./passport는 ./passport/index.js와 같다. 폴더 내의 index.js 파일은 require 시 이름을 생략할 수 있습니다.
 
 const app=express();
 sequelize.sync();
+passportConfig(passport);
 
 app.set('views', path.join(__dirname, 'views')); //path.join의 'views'는 views 디렉토리 의미하는 것 같다.
 app.set('view engine', 'pug');
@@ -36,8 +39,12 @@ app.use(session({
 }));
 
 app.use(flash());
+//passport 미들웨어는 무조건 expres-session보다 뒤에 연결할 것
+app.use(passport.initialize()); // passport.initialize() : 요청 객체에 passport 설정을 심는다.
+app.use(passport.session()); // passport.session() : req.session 객체에 passport 정보를 저장합니다.
 
 app.use('/', pageRouter);
+app.use('/auth', authRouter);
 
 app.use((req, res, next)=>{
   const err= new Error('Not Found');
