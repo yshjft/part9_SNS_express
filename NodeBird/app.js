@@ -45,6 +45,7 @@ app.use(passport.session()); // passport.session() : req.session 객체에 passp
 
 app.use('/', pageRouter);
 app.use('/auth', authRouter);
+//postrouter
 
 app.use((req, res, next)=>{
   const err= new Error('Not Found');
