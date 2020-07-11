@@ -25,23 +25,60 @@ const upload=multer({
       const ext=path.extname(file.originalname); //기존 확장자
       //file.originalname : 파일 기존 이름
       //업로드 날짜값 : new Date().valueOf
+      //path.basename() : Extract the filename from a file path
       cb(null, path.basename(file.originalname, ext)+new Date().valueOf()+ext);
     },
   }),
   limits : {fileSize:5*1024*1024}, //허용되는 이미지 최대 크기
 });
 
-router.post('/img', isLoggedIn, upload.single('img'), (req, res)=>{
+router.post('/img', isLoggedIn, upload.single('img'), (req, res)=>{// 용도를 모르겠다??
   console.log(req.file);
-  res.json({url : `/img/${req.file.filename}`}); // ??
+  res.json({url : `/img/${req.file.filename}`});
 });
 
 const upload2=multer();
 router.post('/', isLoggedIn, upload2.none(), async(req, res, next)=>{
   try{
-    
+    const post = await Post.create({
+      content: req.body.content,
+      img : req.body.url,
+      userId : req.user.id,
+    });
+    const hashtags = req.body.content.match(/#[^\s]*/g);
+    if (hashtags) {
+      const result = await Promise.all(hashtags.map(tag => Hashtag.findOrCreate({
+        where: { title: tag.slice(1).toLowerCase() },
+      })));
+      await post.addHashtags(result.map(r => r[0]));
+    }
+    res.redirect('/');
   }catch(error){
     console.error(error);
     next(error);
   }
-})
+});
+
+router.get('/hashtag', async(req, res, next)=>{
+  const query=req.query.hashtag;
+  if(!query){
+    return res.redirect('/');
+  }
+  try{
+    const hashtag = await Hashtag.find({where :{title:query}});
+    let posts=[];
+    if(hashtag){
+      posts= await hashtag.getPosts({include:[{model:User}]});
+    }
+    return res.render('main', {
+      title:`${query} | NodeBird`,
+      user:req.user,
+      twits:posts,
+    });
+  }catch(error){
+    console.error(error);
+    return next(error);
+  }
+});
+
+module.exports=router;

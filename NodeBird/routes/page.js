@@ -1,5 +1,6 @@
 const express=require('express');
 const {isLoggedIn, isNotLoggedIn}=require('./middlewares');
+const {Post, User}=require('../models');
 
 const router=express.Router();
 
@@ -18,13 +19,28 @@ router.get('/join', isNotLoggedIn,(req, res)=>{
   });
 });
 
-router.get('/', (req,res)=>{
-  res.render('main', {
-    title: 'Nodebird',
-    twits: [],
-    user:req.user,
-    loginError : req.flash('loginError'),
-  });
+router.get('/', (req, res, next)=>{
+  console.log(12345);
+  Post.findAll({
+    include:{ // include : 연결된 모델과 JOIN할 때에 사용되
+      model :User,
+      attributes : ['id', 'nick'],
+    },
+    order:[['createdAt', 'DESC']],
+  })
+    .then((posts)=>{
+      res.render('main', {
+        title:'Nodebird',
+        twits:posts,
+        user:req.user,
+        loginError:req.flash('loginError'),
+      });
+    })
+    .catch((error)=>{
+      console.error(error);
+      next(error);
+    });
 });
+
 
 module.exports=router;

@@ -9,6 +9,8 @@ require('dotenv').config();
 
 const pageRouter = require('./routes/page');
 const authRouter = require('./routes/auth');
+const postRouter = require('./routes/post');
+const userRouter = require('./routes/user');
 const {sequelize} = require('./models'); // ./modles는 ./models/index.js와 같다.
 const passportConfig= require('./passport'); // ./passport는 ./passport/index.js와 같다. 폴더 내의 index.js 파일은 require 시 이름을 생략할 수 있습니다.
 
@@ -22,6 +24,7 @@ app.set('port', process.env.PORT || 8020);
 
 app.use(morgan('dev')); // 배포 시에는 dev를 common이나 combined로 수정
 app.use(express.static(path.join(__dirname, 'public'))); //정적파일 제공, 서버에 자원 중에서 브라우져에 다운로드하여 화면을 그리는 파일을 정적파일이라고 한다.
+app.use('/img', express.static(path.join(__dirname, 'uploads'))); // 업로드할 이미지를 제공할 라우터(/img)도 express.static 미들웨어로 uploads 폴더와 연결한다.
 
 //요청 본문 해석(body parser)
 app.use(express.json());
@@ -45,7 +48,8 @@ app.use(passport.session()); // passport.session() : req.session 객체에 passp
 
 app.use('/', pageRouter);
 app.use('/auth', authRouter);
-//postrouter
+app.use('/post', postRouter);
+app.use('/user', userRouter);
 
 app.use((req, res, next)=>{
   const err= new Error('Not Found');
